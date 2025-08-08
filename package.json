@@ -1,0 +1,23 @@
+{
+  "name": "food-to-recipe-convertor",
+  "version": "1.0.0",
+  "description": "Food to Recipe Convertor with secure API integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "food",
+    "recipe",
+    "ai",
+    "gemini",
+    "netlify",
+    "converter"
+  ],
+  "author": "Sabhya Aggarwal",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
