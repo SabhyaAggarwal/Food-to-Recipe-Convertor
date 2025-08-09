@@ -324,7 +324,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // API proxy endpoint for secure API calls
-            const RECIPE_PROXY_URL = ‘https://shimmering-madeleine-0f04be.netlify.app/.netlify/functions/recipe-proxy';
+            const RECIPE_PROXY_URL = 'https://shimmering-madeleine-0f04be.netlify.app/.netlify/functions/recipe-proxy';
 
             // --- DOM Elements ---
             const uploadCard = document.getElementById('upload-card');
@@ -527,9 +527,6 @@
                 if (isLoading) return;
                 uploadCard.style.transform = 'scale(1)';
             }, { passive: true });
-                    e.dataTransfer.clearData();
-                }
-            });
 
             resetButton.addEventListener('click', resetState);
             downloadButton.addEventListener('click', handleDownload);
@@ -540,5 +537,3 @@
     </script>
 </body>
 </html>
-
-    
