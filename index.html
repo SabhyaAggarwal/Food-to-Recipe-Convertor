@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Food to Recipe Convertor</title>
     
     <!-- Google Fonts -->
@@ -130,7 +133,7 @@
         #upload-card {
             border-style: dashed;
             border-width: 2px;
-            transition: all 0.3s;
+            transition: all 0.3s, transform 0.15s ease;
         }
         #upload-card.drag-active {
             border-color: hsl(var(--primary));
@@ -145,6 +148,23 @@
             gap: 1rem;
             padding: 3rem 0;
             text-align: center;
+            min-height: 200px; /* Ensure touch-friendly size on mobile */
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1); /* Better touch feedback on iOS */
+        }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            #upload-label {
+                padding: 4rem 1rem; /* Larger touch area on mobile */
+                min-height: 240px;
+            }
+            #upload-label h2 {
+                font-size: 1.25rem; /* Slightly smaller text on mobile */
+            }
+            #upload-label svg {
+                width: 3rem; 
+                height: 3rem;
+            }
         }
         #upload-label svg { width: 4rem; height: 4rem; color: hsl(var(--primary)); }
         #upload-label h2 { font-size: 1.5rem; font-weight: 600; }
@@ -248,7 +268,7 @@
     <main class="app-main">
         <div id="upload-card" class="card">
             <div class="card-content">
-                <input id="file-upload-input" type="file" class="hidden" accept="image/*" />
+                <input id="file-upload-input" type="file" class="hidden" accept="image/*,.heic,.heif" capture="environment" />
                 <label for="file-upload-input" id="upload-label">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><line x1="16" x2="22" y1="5" y2="5"/><line x1="19" x2="19" y1="2" y2="8"/><path d="M7 20l4-4 3 3 5-5"/><path d="m17 17 2 2 4-4"/></svg>
                     <h2 id="upload-text">Drag & drop a photo or click to upload</h2>
@@ -328,6 +348,18 @@
             let isLoading = false;
 
             // --- Functions ---
+            
+            const showMobileError = (title, message, suggestedAction = '') => {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    const fullMessage = suggestedAction 
+                        ? `${message} ${suggestedAction}`
+                        : message;
+                    alert(`${title}: ${fullMessage}`);
+                } else {
+                    alert(`${title}: ${message}`);
+                }
+            };
 
             const setState = (loading) => {
                 isLoading = loading;
@@ -351,7 +383,21 @@
 
             const handleFile = async (file) => {
                 if (!file || !file.type.startsWith('image/')) {
-                    alert('Please upload an image file.');
+                    showMobileError('Invalid File', 'Please upload an image file.', 'Try taking a photo with your camera or selecting from your photo gallery.');
+                    return;
+                }
+
+                // Mobile-specific file size validation (10MB limit for mobile devices)
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    showMobileError('File Too Large', 'File size too large. Please choose an image smaller than 10MB.', 'Try compressing the image or taking a new photo.');
+                    return;
+                }
+
+                // Check for common mobile image formats
+                const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+                if (!supportedFormats.includes(file.type.toLowerCase())) {
+                    showMobileError('Unsupported Format', 'Unsupported image format. Please use JPEG, PNG, WebP, or HEIC format.', 'Try taking a new photo or converting the image format.');
                     return;
                 }
 
@@ -414,7 +460,7 @@
                     }
                 };
                 reader.onerror = () => {
-                    alert('Could not read the selected file.');
+                    showMobileError('File Read Error', 'Could not read the selected file.', 'Please try selecting a different image or take a new photo.');
                 };
                 reader.readAsDataURL(file);
             };
@@ -462,6 +508,25 @@
                 uploadText.textContent = "Drag & drop a photo or click to upload";
                 if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                     handleFile(e.dataTransfer.files[0]);
+                    e.dataTransfer.clearData();
+                }
+            });
+
+            // Mobile touch event improvements
+            uploadCard.addEventListener('touchstart', (e) => {
+                if (isLoading) return;
+                uploadCard.style.transform = 'scale(0.98)';
+            }, { passive: true });
+            
+            uploadCard.addEventListener('touchend', (e) => {
+                if (isLoading) return;
+                uploadCard.style.transform = 'scale(1)';
+            }, { passive: true });
+            
+            uploadCard.addEventListener('touchcancel', (e) => {
+                if (isLoading) return;
+                uploadCard.style.transform = 'scale(1)';
+            }, { passive: true });
                     e.dataTransfer.clearData();
                 }
             });
