@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Upload Test - Food to Recipe Convertor</title>
+    
+    <style>
+        /* Basic styling for the test page */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            .upload-area {
+                padding: 50px 15px;
+                min-height: 240px;
+            }
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .success {
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .file-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .feature-list h3 {
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+
+        .feature-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Upload Test</h1>
+        <p class="subtitle">Simple test for image upload functionality</p>
+        
+        <div class="upload-area" id="upload-area">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Tap to select image or drag & drop</div>
+            <div class="upload-hint">Test camera access and file upload</div>
+            <input type="file" id="file-input" accept="image/*,.heic,.heif" capture="environment">
+        </div>
+
+        <div id="result-area" class="result-area">
+            <div id="status"></div>
+            <div id="file-info"></div>
+            <img id="image-preview" class="image-preview" style="display: none;">
+            <button class="reset-btn" onclick="resetTest()">Test Another Image</button>
+        </div>
+
+        <div class="feature-list">
+            <h3>Testing Features:</h3>
+            <ul>
+                <li>Mobile camera access (capture="environment")</li>
+                <li>HEIC/HEIF format support (iPhone native)</li>
+                <li>Drag & drop functionality</li>
+                <li>File size validation (10MB limit)</li>
+                <li>Format validation</li>
+                <li>Touch-friendly interface</li>
+                <li>Responsive design</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const resultArea = document.getElementById('result-area');
+        const statusDiv = document.getElementById('status');
+        const fileInfoDiv = document.getElementById('file-info');
+        const imagePreview = document.getElementById('image-preview');
+
+        // Mobile error handling
+        const showMobileError = (title, message, suggestedAction = '') => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                const fullMessage = suggestedAction 
+                    ? `${message} ${suggestedAction}`
+                    : message;
+                return `${title}: ${fullMessage}`;
+            } else {
+                return `${title}: ${message}`;
+            }
+        };
+
+        // Format file size for display
+        const formatFileSize = (bytes) => {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        };
+
+        // Handle file selection
+        const handleFile = (file) => {
+            console.log('File selected:', file);
+            
+            // Show result area
+            resultArea.classList.add('show');
+            
+            // Clear previous results
+            statusDiv.innerHTML = '';
+            fileInfoDiv.innerHTML = '';
+            imagePreview.style.display = 'none';
+
+            // Basic file validation
+            if (!file || !file.type.startsWith('image/')) {
+                const errorMsg = showMobileError('Invalid File', 'Please upload an image file.', 'Try taking a photo with your camera or selecting from your photo gallery.');
+                statusDiv.innerHTML = `<div class="error">${errorMsg}</div>`;
+                return;
+            }
+
+            // File size validation (10MB limit for mobile devices)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                const errorMsg = showMobileError('File Too Large', 'File size too large. Please choose an image smaller than 10MB.', 'Try compressing the image or taking a new photo.');
+                statusDiv.innerHTML = `<div class="error">${errorMsg}</div>`;
+                return;
+            }
+
+            // Check for supported formats
+            const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+            if (!supportedFormats.includes(file.type.toLowerCase())) {
+                const errorMsg = showMobileError('Unsupported Format', 'Unsupported image format. Please use JPEG, PNG, WebP, or HEIC format.', 'Try taking a new photo or converting the image format.');
+                statusDiv.innerHTML = `<div class="error">${errorMsg}</div>`;
+                return;
+            }
+
+            // Success! Show file info
+            statusDiv.innerHTML = '<div class="success">✅ Upload successful! File is valid and ready to use.</div>';
+            
+            // Display file information
+            const fileInfo = `
+                <strong>File Details:</strong><br>
+                Name: ${file.name}<br>
+                Type: ${file.type}<br>
+                Size: ${formatFileSize(file.size)}<br>
+                Last Modified: ${new Date(file.lastModified).toLocaleString()}<br>
+                Camera Access: ${fileInput.hasAttribute('capture') ? 'Enabled ✅' : 'Disabled ❌'}
+            `;
+            fileInfoDiv.innerHTML = `<div class="file-info">${fileInfo}</div>`;
+
+            // Try to show image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.onerror = function() {
+                fileInfoDiv.innerHTML += '<div class="error">Could not preview image (but upload was successful)</div>';
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Reset the test
+        const resetTest = () => {
+            resultArea.classList.remove('show');
+            fileInput.value = '';
+            uploadArea.classList.remove('drag-over');
+        };
+
+        // Event listeners
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+                e.dataTransfer.clearData();
+            }
+        });
+
+        // Mobile touch feedback
+        uploadArea.addEventListener('touchstart', (e) => {
+            uploadArea.style.transform = 'scale(0.98)';
+        }, { passive: true });
+        
+        uploadArea.addEventListener('touchend', (e) => {
+            uploadArea.style.transform = 'scale(1)';
+        }, { passive: true });
+        
+        uploadArea.addEventListener('touchcancel', (e) => {
+            uploadArea.style.transform = 'scale(1)';
+        }, { passive: true });
+
+        // Log device info for debugging
+        console.log('Device Info:', {
+            userAgent: navigator.userAgent,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            devicePixelRatio: window.devicePixelRatio,
+            touchSupport: 'ontouchstart' in window,
+            cameraSupport: navigator.mediaDevices ? 'Available' : 'Not Available'
+        });
+    </script>
+</body>
+</html>
