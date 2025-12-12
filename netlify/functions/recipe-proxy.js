@@ -61,7 +61,7 @@ exports.handler = async (event, context) => {
     const hasImage = requestBody.imageData && requestBody.mimeType;
 
     // Prepare the request to Gemini API (use gemini-2.0-flash model)
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     let geminiRequestBody;
 
