@@ -60,14 +60,12 @@ exports.handler = async (event, context) => {
     // Check if this is an image-based request
     const hasImage = requestBody.imageData && requestBody.mimeType;
 
-    // Prepare the request to Gemini API (use gemini-2.0-flash model)
+    // Prepare the request to Gemini API (use gemini-2.5-flash model)
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
     let geminiRequestBody;
 
     // Recipe prompt engineering
     const engineeredPrompt = `You are a helpful and creative recipe expert. Respond only with the recipe in a clear, step-by-step format. Avoid explanations, just provide the recipe. Prompt:\n${requestBody.prompt}`;
-
     if (hasImage) {
       // Handle image + text request
       geminiRequestBody = {
@@ -78,8 +76,8 @@ exports.handler = async (event, context) => {
                 text: engineeredPrompt
               },
               {
-                inline_data: {
-                  mime_type: requestBody.mimeType,
+                inlineData: {
+                  mimeType: requestBody.mimeType,
                   data: requestBody.imageData
                 }
               }
